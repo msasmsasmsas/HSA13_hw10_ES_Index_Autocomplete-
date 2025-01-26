@@ -24,3 +24,28 @@ CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.
 
 # docker-compose down --rmi all --volumes --remove-orphans
 # docker-compose up --build
+
+ ## Стягиваем последние изменения из удаленного репозитория
+ #git pull origin main
+
+ ## Переключаемся на main
+ #git checkout main
+ #
+ #git pull origin main --rebase
+ #
+
+ ## Сливаем ветку master в main
+ #git merge master
+ #
+ ## Если есть конфликты - разрешите их, затем:
+ #git commit -am "Resolved merge conflicts"
+ #
+ ## Отправляем изменения в удаленный репозиторий
+ #git push origin main
+#
+#
+#
+#
+#
+#
+#
