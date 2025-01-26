@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+
+  elasticsearch:
+    image: elasticsearch:8.5.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+
+  streamlit:
+    build:
+      context: ./streamlit
+    ports:
+      - "8501:8501"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
