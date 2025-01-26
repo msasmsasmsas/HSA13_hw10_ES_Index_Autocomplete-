@@ -6,17 +6,14 @@ def create_es_index(es_client):
         "mappings": {
             "properties": {
                 "comment": {
-                    "type": "text",
-                    "analyzer": "standard",
-                    "fields": {
-                        "suggest": {
-                            "type": "completion",
-                            "analyzer": "simple",
-                            "preserve_separators": True,
-                            "preserve_position_increments": True,
-                            "max_input_length": 50
-                        }
-                    }
+                    "type": "text"
+                },
+                "suggest": {
+                    "type": "completion",
+                    "analyzer": "simple",
+                    "preserve_separators": True,
+                    "preserve_position_increments": True,
+                    "max_input_length": 50
                 }
             }
         }
@@ -24,7 +21,12 @@ def create_es_index(es_client):
     es_client.indices.create(index="comments", body=mapping, ignore=400)
 
 def add_comment(es_client, comment):
-    es_client.index(index="comments", body={"comment": comment, "comment.suggest": {"input": comment.split()}})
+    es_client.index(index="comments", body={
+        "comment": comment,
+        "suggest": {
+            "input": comment.split()
+        }
+    })
 
 def autocomplete(es_client, query):
     response = es_client.search(index="comments", body={
@@ -32,7 +34,7 @@ def autocomplete(es_client, query):
             "comment-suggest": {
                 "prefix": query,
                 "completion": {
-                    "field": "comment.suggest",
+                    "field": "suggest",
                     "fuzzy": {
                         "fuzziness": 2
                     }
@@ -40,7 +42,7 @@ def autocomplete(es_client, query):
             }
         }
     })
-    return [suggest["text"] for suggest in response["suggest"]["comment-suggest"][0]["options"]]
+    return [option["text"] for option in response["suggest"]["comment-suggest"][0]["options"]]
 
 st.title("Коментарі з автодоповненням")
 
@@ -56,4 +58,3 @@ auto_query = st.text_input("Автодоповнення")
 if auto_query:
     suggestions = autocomplete(es_client, auto_query)
     st.write("Рекомендації:", suggestions)
-

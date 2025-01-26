@@ -1,25 +1,15 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
 WORKDIR /app
 
 # Встановлення необхідних системних залежностей
-RUN apk add --no-cache \
-    g++ \
-    gcc \
-    musl-dev \
-    cmake \
-    make \
-    libffi-dev \
-    openblas-dev \
-    lapack-dev \
-    freetype-dev \
-    libpng-dev \
-    jpeg-dev \
-    zlib-dev \
-    linux-headers \
-    py3-pip \
-    py3-setuptools \
-    py3-wheel
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gfortran \
+    libatlas-base-dev \
+    libopenblas-dev \
+    liblapack-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Оновлення pip
 RUN pip install --upgrade pip
@@ -31,8 +21,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0"]
-
-
 
 # docker-compose down --rmi all --volumes --remove-orphans
 # docker-compose up --build
